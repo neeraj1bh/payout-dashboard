@@ -1,8 +1,8 @@
 import React, { useState, FC } from "react";
 
-import SearchIcon from "./SearchIcon";
 import { SearchBarContainer, Icon, Input } from "./SearchBar.styled";
 import { debounce } from "@/utils/debounce";
+import { SearchIcon } from "@/assets";
 
 interface Props {
   onChange: (value: string) => void;

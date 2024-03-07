@@ -34,6 +34,7 @@ export const StyledFooter = styled.div`
   flex-wrap: wrap;
   align-items: center;
   gap: 20px;
+  margin-bottom: 20px;
 `;
 
 export const StyledChip = styled.div`

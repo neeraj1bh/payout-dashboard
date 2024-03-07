@@ -1,17 +1,21 @@
 "use client";
 
-import React, { useState, useEffect, useRef, FC } from "react";
+import React, { useState, useEffect, useRef, useMemo, FC } from "react";
 import {
   StyledChip,
+  StyledFooter,
   StyledPayout,
   StyledPayoutHeader,
   StyledSpacer,
   StyledWrapper,
-} from "./PayoutList.styled";
+} from "./PayoutWrapper.styled";
 import SearchBar from "../SearchBar";
 import { searchAPI } from "@/utils/api";
 import { fetchAPI } from "@/utils/api";
-import PayoutItem from "../PayoutItem";
+import PayoutTable from "../PayoutTable";
+import Select from "react-select";
+import { PageSizes } from "@/utils/pageSizes";
+import Pagination from "../Pagination";
 
 type ErrorState = Error | null;
 
@@ -32,7 +36,9 @@ interface ApiData {
 }
 
 const PayoutList: FC = () => {
+  const [searchValue, setSearchValue] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(PageSizes[0]);
   const [totalPages, setTotalPages] = useState(1);
 
   const [searchData, setSearchData] = useState([]);
@@ -43,6 +49,7 @@ const PayoutList: FC = () => {
 
   const fetchWithoutSearchTerm = async (page: number, pageSize: number) => {
     setLoading(true);
+    setError(null);
 
     try {
       const response = await fetchAPI(page, pageSize);
@@ -50,7 +57,7 @@ const PayoutList: FC = () => {
       setTotalPages(Math.ceil(response.metadata.totalCount / pageSize));
     } catch (error) {
       setError(error as Error);
-  console.error("Some error occured in fetchWithoutSearchTerm", error);
+      console.error("Some error occured in fetchWithoutSearchTerm", error);
     }
 
     setLoading(false);
@@ -58,10 +65,12 @@ const PayoutList: FC = () => {
 
   const fetchWithSearchTerm = async (searchValue: string) => {
     setLoading(true);
+    setError(null);
 
     try {
       const response = await searchAPI(searchValue);
       setSearchData(response);
+      const totalPages = Math.ceil(response.length / pageSize.value);
       setCurrentPage(totalPages < currentPage ? totalPages : currentPage);
       setTotalPages(totalPages);
     } catch (error) {
@@ -72,18 +81,44 @@ const PayoutList: FC = () => {
   };
 
   const handleSearch = (value: string) => {
+    setSearchValue(value);
     if (!value) {
-      fetchWithoutSearchTerm(currentPage, 10);
+      fetchWithoutSearchTerm(currentPage, pageSize.value);
     } else fetchWithSearchTerm(value);
+  };
+
+  const handlePageClick = (selected: number) => {
+    setCurrentPage(selected);
+    if (!searchValue) {
+      fetchWithoutSearchTerm(selected, pageSize.value);
+    }
+  };
+
+  const handlePageSizeChange = (newValue: { label: string; value: number }) => {
+    setPageSize(newValue);
+    if (searchValue) {
+      fetchWithSearchTerm(searchValue);
+    } else {
+      fetchWithoutSearchTerm(currentPage, newValue?.value);
+    }
   };
 
   // api call on first load, we should avoid useEffects unless it is absolutely necessary
   useEffect(() => {
     if (initialRender.current) {
-      fetchWithoutSearchTerm(currentPage, 10);
+      fetchWithoutSearchTerm(currentPage, pageSize.value);
       initialRender.current = false;
     }
   }, []);
+
+  // makes sure  pagination also works with search response
+  const listData = useMemo(() => {
+    if (!searchValue) return searchData;
+    const startIndex = pageSize.value * (currentPage - 1);
+    return searchData.slice(startIndex, startIndex + pageSize.value);
+  }, [searchValue, pageSize, currentPage, searchData]);
+
+  const showTable = !loading && !error && searchData.length > 0;
 
   return (
     <StyledWrapper>
@@ -95,11 +130,24 @@ const PayoutList: FC = () => {
         <SearchBar onChange={handleSearch} />
       </StyledSpacer>
       {loading && <div>Loading...</div>}
-      {!loading && (
-        <>
-          <PayoutItem data={searchData} />
-        </>
-      )}
+      {showTable && <PayoutTable data={listData} />}{" "}
+      <StyledFooter>
+        <Select
+          instanceId="my-select"
+          options={PageSizes}
+          value={pageSize}
+          onChange={(value) => {
+            if (value) handlePageSizeChange(value);
+          }}
+          defaultValue={PageSizes[0]}
+          menuPlacement="auto"
+        />
+        <Pagination
+          totalPages={totalPages}
+          currentPage={currentPage}
+          onPageChange={handlePageClick}
+        />
+      </StyledFooter>
     </StyledWrapper>
   );
 };
