@@ -2,8 +2,6 @@
 
 import React, { useState, useEffect, useRef, useMemo, FC } from "react";
 import {
-  FallBackWrapper,
-  Loader,
   StyledChip,
   StyledFooter,
   StyledPayout,
@@ -11,33 +9,17 @@ import {
   StyledSpacer,
   StyledWrapper,
 } from "./PayoutWrapper.styled";
-import SearchBar from "../SearchBar";
 import { searchAPI } from "@/utils/api";
 import { fetchAPI } from "@/utils/api";
-import PayoutTable from "../PayoutTable";
 import Select from "react-select";
 import { PageSizes } from "@/utils/pageSizes";
-import Pagination from "../Pagination";
+import toast from "react-hot-toast";
+import { PayoutTable } from "../Table";
+import { SearchBar } from "../SearchBar";
+import { Pagination } from "../Pagination";
+import { debounce } from "@/utils/debounce";
 
-type ErrorState = Error | null;
-
-interface PayoutData {
-  dateAndTime: string;
-  status: "Pending" | "Completed";
-  value: string;
-  username: string;
-}
-
-interface ApiData {
-  metadata: {
-    page: number;
-    limit: number;
-    totalCount: number;
-  };
-  data: PayoutData[];
-}
-
-const PayoutList: FC = () => {
+const PayoutWrapper: FC = () => {
   const [searchValue, setSearchValue] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(PageSizes[0]);
@@ -45,7 +27,7 @@ const PayoutList: FC = () => {
 
   const [searchData, setSearchData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<ErrorState>(null);
+  const [error, setError] = useState<Error | null>(null);
 
   const initialRender = useRef(true);
 
@@ -55,11 +37,14 @@ const PayoutList: FC = () => {
 
     try {
       const response = await fetchAPI(page, pageSize);
+
       setSearchData(response.data);
       setTotalPages(Math.ceil(response.metadata.totalCount / pageSize));
     } catch (error) {
       setError(error as Error);
-      console.error("Something went wrong", error);
+      toast.error("Something went wrong, please try again later", {
+        position: "bottom-center",
+      });
     }
 
     setLoading(false);
@@ -71,23 +56,33 @@ const PayoutList: FC = () => {
 
     try {
       const response = await searchAPI(searchValue);
+
       setSearchData(response);
+
       const totalPages = Math.ceil(response.length / pageSize.value);
-      setCurrentPage(totalPages < currentPage ? totalPages : currentPage);
-      setTotalPages(totalPages);
+
+      if (totalPages === 0) {
+        setCurrentPage(1);
+      } else if (currentPage > totalPages) {
+        setCurrentPage(totalPages);
+      }
+
+      setTotalPages(totalPages < 1 ? 1 : totalPages);
     } catch (error) {
       setError(error as Error);
-      console.error("Something went wrong", error);
+      toast.error("Something went wrong, please try again later", {
+        position: "bottom-center",
+      });
     }
     setLoading(false);
   };
 
-  const handleSearch = (value: string) => {
+  const handleSearch = debounce((value: string) => {
     setSearchValue(value);
     if (!value) {
       fetchWithoutSearchTerm(currentPage, pageSize.value);
     } else fetchWithSearchTerm(value);
-  };
+  }, 500);
 
   const handlePageClick = (selected: number) => {
     setCurrentPage(selected);
@@ -98,9 +93,8 @@ const PayoutList: FC = () => {
 
   const handlePageSizeChange = (newValue: { label: string; value: number }) => {
     setPageSize(newValue);
-    if (searchValue) {
-      fetchWithSearchTerm(searchValue);
-    } else {
+    setTotalPages(Math.ceil(searchData.length / newValue.value));
+    if (!searchValue) {
       fetchWithoutSearchTerm(currentPage, newValue?.value);
     }
   };
@@ -121,8 +115,6 @@ const PayoutList: FC = () => {
     return searchData.slice(startIndex, startIndex + pageSize.value);
   }, [searchValue, pageSize, currentPage, searchData]);
 
-  const showTable = !loading && !error && searchData.length > 0;
-
   return (
     <StyledWrapper>
       <StyledSpacer>
@@ -132,17 +124,7 @@ const PayoutList: FC = () => {
         </StyledPayout>
         <SearchBar onChange={handleSearch} />
       </StyledSpacer>
-
-      <FallBackWrapper $showFallback={loading}>
-        <Loader />
-      </FallBackWrapper>
-      <FallBackWrapper $showFallback={!!error}>Error: {error?.message}</FallBackWrapper>
-
-      <FallBackWrapper $showFallback={!loading && !error && searchData.length === 0}>
-        No payouts found
-      </FallBackWrapper>
-
-      {showTable && <PayoutTable data={listData} />}
+      <PayoutTable data={listData} loading={loading} error={error?.message || ""} />
       <StyledFooter>
         <Select
           instanceId="my-select"
@@ -164,4 +146,4 @@ const PayoutList: FC = () => {
   );
 };
 
-export default PayoutList;
+export default PayoutWrapper;

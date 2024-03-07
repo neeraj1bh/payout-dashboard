@@ -1,21 +1,18 @@
 import React, { useState, FC } from "react";
 
 import { SearchBarContainer, Icon, Input } from "./SearchBar.styled";
-import { debounce } from "@/utils/debounce";
 import { SearchIcon } from "@/assets";
 
-interface Props {
+interface SearchBarProps {
   onChange: (value: string) => void;
 }
 
-const SearchBar: FC<Props> = ({ onChange }) => {
+const SearchBar: FC<SearchBarProps> = ({ onChange }) => {
   const [value, setValue] = useState("");
-
-  const debouncedSearch = debounce(onChange, 500);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValue(e.target.value);
-    debouncedSearch(e.target.value);
+    onChange(e.target.value);
   };
 
   return (

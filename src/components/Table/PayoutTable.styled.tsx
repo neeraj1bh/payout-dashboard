@@ -39,7 +39,7 @@ export const StyledHeader = styled.div`
 `;
 
 export const StyledBody = styled.tbody`
-  max-height: 474px;
+  height: 475px;
   overflow-y: auto;
   display: block;
 
@@ -61,10 +61,14 @@ export const StyledCell = styled.td`
   padding: 10px;
   max-width: 100%;
 `;
+export const StyledTableContainer = styled.div`
+  overflow-x: auto;
+`;
 
 export const StyledTable = styled.table`
   border-spacing: 0;
   width: 100%;
+  min-width: 700px;
 `;
 
 export const StyledTh = styled.th`
@@ -95,4 +99,11 @@ export const SkeletonLoader = styled.div`
 
 export const StyledThead = styled.thead`
   width: 100%;
+`;
+
+export const FallBack = styled.div`
+  height: 514px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
