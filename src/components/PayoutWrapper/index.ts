@@ -1,1 +1,1 @@
-export { default } from "./PayoutWrapper";
+export { default as PayoutWrapper } from "./PayoutWrapper";
