@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect, useRef, useMemo, FC } from "react";
 import {
+  FallBackWrapper,
+  Loader,
   StyledChip,
   StyledFooter,
   StyledPayout,
@@ -42,7 +44,7 @@ const PayoutList: FC = () => {
   const [totalPages, setTotalPages] = useState(1);
 
   const [searchData, setSearchData] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<ErrorState>(null);
 
   const initialRender = useRef(true);
@@ -57,7 +59,7 @@ const PayoutList: FC = () => {
       setTotalPages(Math.ceil(response.metadata.totalCount / pageSize));
     } catch (error) {
       setError(error as Error);
-      console.error("Some error occured in fetchWithoutSearchTerm", error);
+      console.error("Something went wrong", error);
     }
 
     setLoading(false);
@@ -75,7 +77,7 @@ const PayoutList: FC = () => {
       setTotalPages(totalPages);
     } catch (error) {
       setError(error as Error);
-      console.error("Some error occured in fetchWithSearchTerm", error);
+      console.error("Something went wrong", error);
     }
     setLoading(false);
   };
@@ -109,6 +111,7 @@ const PayoutList: FC = () => {
       fetchWithoutSearchTerm(currentPage, pageSize.value);
       initialRender.current = false;
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // makes sure  pagination also works with search response
@@ -129,8 +132,17 @@ const PayoutList: FC = () => {
         </StyledPayout>
         <SearchBar onChange={handleSearch} />
       </StyledSpacer>
-      {loading && <div>Loading...</div>}
-      {showTable && <PayoutTable data={listData} />}{" "}
+
+      <FallBackWrapper $showFallback={loading}>
+        <Loader />
+      </FallBackWrapper>
+      <FallBackWrapper $showFallback={!!error}>Error: {error?.message}</FallBackWrapper>
+
+      <FallBackWrapper $showFallback={!loading && !error && searchData.length === 0}>
+        No payouts found
+      </FallBackWrapper>
+
+      {showTable && <PayoutTable data={listData} />}
       <StyledFooter>
         <Select
           instanceId="my-select"

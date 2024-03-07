@@ -33,11 +33,7 @@ interface TableHeaderProps {
   handleClick: () => void;
 }
 
-export const TableHeader: FC<TableHeaderProps> = ({
-  heading,
-  sortOrder,
-  handleClick,
-}) => {
+export const TableHeader: FC<TableHeaderProps> = ({ heading, sortOrder, handleClick }) => {
   const caretIcon =
     sortOrder === "asc" ? (
       <CaretDownIcon width={"20px"} height={"20px"} />
@@ -129,7 +125,7 @@ const PayoutTable: FC<Props> = ({ data }) => {
               <StyledDate>{formatDate(item.dateAndTime)}</StyledDate>
             </StyledCell>
             <StyledCell>
-              <StyledStatus selected={item.status}>{item.status}</StyledStatus>
+              <StyledStatus $status={item.status}>{item.status}</StyledStatus>
             </StyledCell>
             <StyledCell>
               <StyledValue>{item.value}</StyledValue>

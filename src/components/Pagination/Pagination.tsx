@@ -1,9 +1,5 @@
 import { FC, useMemo } from "react";
-import {
-  PaginationContainer,
-  PaginationButton,
-  NavigationButton,
-} from "./Pagination.styled";
+import { PaginationContainer, PaginationButton, NavigationButton } from "./Pagination.styled";
 
 interface PaginationProps {
   totalPages: number;
@@ -11,11 +7,7 @@ interface PaginationProps {
   onPageChange: (page: number) => void;
 }
 
-const Pagination: FC<PaginationProps> = ({
-  totalPages,
-  currentPage,
-  onPageChange,
-}) => {
+const Pagination: FC<PaginationProps> = ({ totalPages, currentPage, onPageChange }) => {
   const handlePageChange = (page: number) => {
     if (page !== currentPage) {
       onPageChange(page);
@@ -81,7 +73,7 @@ const Pagination: FC<PaginationProps> = ({
         return (
           <PaginationButton
             key={index}
-            selected={currentPage === page}
+            $active={currentPage === page}
             onClick={() => handlePageChange(page)}
           >
             {page}
