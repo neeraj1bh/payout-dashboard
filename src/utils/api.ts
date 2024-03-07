@@ -1,10 +1,8 @@
 import axios from "axios";
 
-const PAYOUT_API_URL =
-  "https://theseus-staging.lithium.ventures/api/v1/analytics/tech-test";
+const PAYOUT_API_URL = "https://theseus-staging.lithium.ventures/api/v1/analytics/tech-test";
 
-const SEARCH_API_URL =
-  "https://theseus-staging.medley.gg/api/v1/analytics/tech-test";
+const SEARCH_API_URL = "https://theseus-staging.medley.gg/api/v1/analytics/tech-test";
 
 export const fetchAPI = async (page: number, limit: number) => {
   try {
@@ -17,7 +15,7 @@ export const fetchAPI = async (page: number, limit: number) => {
 
     return data;
   } catch (error) {
-    console.error("Some error occured in fetchAPI", error);
+    console.error("Something went wrong", error);
     throw error;
   }
 };
@@ -29,7 +27,7 @@ export const searchAPI = async (search: string) => {
     });
     return data;
   } catch (error) {
-    console.error("Some error occured in searchAPI", error);
+    console.error("Something went wrong", error);
     throw error;
   }
 };

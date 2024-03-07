@@ -7,12 +7,12 @@ export const PaginationContainer = styled.div`
 `;
 
 interface PaginationButtonProps {
-  selected?: boolean;
+  $active?: boolean;
 }
 
 export const PaginationButton = styled.button<PaginationButtonProps>`
   padding: 8px 10px;
-  color: ${(props) => (props?.selected ? "#333" : "#999")};
+  color: ${({ $active }) => ($active ? "#333" : "#999")};
   margin: 0;
   cursor: pointer;
   border: none;

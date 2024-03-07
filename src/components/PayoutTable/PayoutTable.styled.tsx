@@ -9,13 +9,13 @@ export const StyledDate = styled.div`
 `;
 
 interface StatusProps {
-  selected: "Completed" | "Pending";
+  $status: "Completed" | "Pending";
 }
 
 export const StyledStatus = styled.div<StatusProps>`
-  background-color: ${(props) =>
-    props.selected === "Completed" ? "rgb(96, 202, 87)" : "rgb(193, 196, 199)"};
-  width: ${(props) => (props.selected === "Completed" ? "95px" : "75px")};
+  background-color: ${({ $status }) =>
+    $status === "Completed" ? "rgb(96, 202, 87)" : "rgb(193, 196, 199)"};
+  width: ${({ $status }) => ($status === "Completed" ? "95px" : "75px")};
   padding: 5px;
   border-radius: 5px;
   text-align: center;
@@ -39,6 +39,10 @@ export const StyledHeader = styled.div`
 `;
 
 export const StyledBody = styled.tbody`
+  max-height: 474px;
+  overflow-y: auto;
+  display: block;
+
   tr:nth-child(odd) {
     background-color: #f9f9f9;
   }
@@ -92,4 +96,3 @@ export const SkeletonLoader = styled.div`
 export const StyledThead = styled.thead`
   width: 100%;
 `;
-
