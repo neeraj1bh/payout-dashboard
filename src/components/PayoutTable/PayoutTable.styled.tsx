@@ -34,6 +34,8 @@ export const StyledHeader = styled.div`
   color: rgb(111, 118, 126);
   display: flex;
   font-size: 12px;
+  align-items: center;
+  cursor: pointer;
 `;
 
 export const StyledBody = styled.tbody`
@@ -45,8 +47,15 @@ export const StyledBody = styled.tbody`
   }
 `;
 
+export const StyledRow = styled.tr`
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  width: 100%;
+`;
+
 export const StyledCell = styled.td`
   padding: 10px;
+  max-width: 100%;
 `;
 
 export const StyledTable = styled.table`
@@ -56,11 +65,6 @@ export const StyledTable = styled.table`
 
 export const StyledTh = styled.th`
   padding: 10px;
-`;
-
-export const StyledRow = styled.tr`
-  height: 48px;
-  width: 100%;
 `;
 
 export const SkeletonLoader = styled.div`
@@ -88,3 +92,4 @@ export const SkeletonLoader = styled.div`
 export const StyledThead = styled.thead`
   width: 100%;
 `;
+
